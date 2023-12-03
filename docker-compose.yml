@@ -15,8 +15,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}
   
   db:
-    container_name: api_postgresql
-    image: postgres:16.1
+    container_name:
+    image: postgres:16.1 api_postgresql
     ports:
       - 6750:6750
     networks:
@@ -26,7 +26,20 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - 3030:3030
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SERVER_ROOT_URL=http://localhost/
+      - GF_INSTALL_PLUGINS=grafana-clock-panel
+    networks:
+      - docker-network
+  
   ppgadmin:
     container_name: pgadmin4
     image: dpage/pgadmin4
@@ -37,7 +50,8 @@ services:
       - 5050:80
     networks:
       - docker-network
-
+volumes:
+  grafana-storage: {}
 networks:
   docker-network:
     driver: bridge
