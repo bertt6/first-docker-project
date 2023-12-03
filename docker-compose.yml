@@ -1,57 +1,44 @@
-version: "3"
+version: '3'
 
 services:
-  api:
-    container_name: api
-    ports:
+  nodejs:
+    container_name: nodejs
+    ports: 
       - 3000:3000
-    build: 
+    build:
       context: ./api
       dockerfile: ./Dockerfile
     networks:
-      - docker-network
-    environment:
-      - MODE_ENV=${MODE_ENV}
-      - DATABASE_URL=${DATABASE_URL}
-  
-  db:
-    container_name:
-    image: postgres:16.1 api_postgresql
+      - mynetwork
+
+  couchbase:
+    image: couchbase:latest
     ports:
-      - 6750:6750
-    networks:
-      - docker-network
-    volumes:
-      - ./db:/var/lib/postgresql/data
+      - "8091:8091"
+      - "8092:8092"
+      - "8093:8093"
+      - "11210:11210"
     environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - COUCHBASE_ADMINISTRATOR_USERNAME=admin
+      - COUCHBASE_ADMINISTRATOR_PASSWORD=password
+    networks:
+      - mynetwork
+
   grafana:
-    container_name: grafana
     image: grafana/grafana:latest
-    restart: unless-stopped
     ports:
-      - 3030:3030
-    volumes:
-      - grafana-storage:/var/lib/grafana
-    environment:
-      - GF_SERVER_ROOT_URL=http://localhost/
-      - GF_INSTALL_PLUGINS=grafana-clock-panel
+      - "3030:3000"
     networks:
-      - docker-network
-  
-  ppgadmin:
-    container_name: pgadmin4
-    image: dpage/pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - mynetwork
+
+  nginx:
+    image: nginx:latest
     ports:
-      - 5050:80
+      - "80:80"
+    
     networks:
-      - docker-network
-volumes:
-  grafana-storage: {}
+      - mynetwork
+
 networks:
-  docker-network:
+  mynetwork:
     driver: bridge
