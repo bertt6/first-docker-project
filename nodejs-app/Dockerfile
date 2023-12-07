@@ -14,4 +14,4 @@ VOLUME fiyatlar.txt:./usr/src/app/fiyatlar.txt
 EXPOSE 3030
 
 
-CMD ["npx", "nodemon", "app.js
+CMD ["npx", "nodemon", "app.js"]

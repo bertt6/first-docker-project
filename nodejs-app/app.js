@@ -35,4 +35,39 @@ axios.get(appleURL)
       // PostgreSQL veritabanına kaydetmek için kullanılacak bilgiler
       const pgConfig = {
         user: 'bert6',
- 
+        host: 'localhost',
+        database: 'pricegraphic',
+        password: '123',
+        port: '5432:5432'
+      };
+
+      // PostgreSQL'e bağlan
+      const { Client } = require('pg');
+      const pgClient = new Client(pgConfig);
+      pgClient.connect();
+
+      // iPhone fiyatlarını PostgreSQL'e kaydet
+      iphonePrices.forEach((price, index) => {
+        const query = `INSERT INTO iphone_prices (id, price) VALUES ($1, $2)`;
+        const values = [index + 1, price];
+
+        pgClient.query(query, values, (err, res) => {
+          if (err) {
+            console.error(err);
+          } else {
+            console.log(`Row inserted: ${res.rowCount}`);
+          }
+        });
+      });
+
+      // PostgreSQL bağlantısını kapat
+      pgClient.end();
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+  });
+
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}!`);
+});
