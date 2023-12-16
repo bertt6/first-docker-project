@@ -2,58 +2,37 @@ version: '3'
 
 services:
   postgres:
-    container_name: postgres
-    image: postgres:latest
+    build:
+      context: ./srcs/database
+      dockerfile: Dockerfile
+    container_name: postgres-container
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - ./postgres-data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      POSTGRES_DB: postgresql
+      POSTGRES_USER: bert6
+      POSTGRES_PASSWORD: 123
     ports:
       - "5432:5432"
-    networks:
-      - mynetwork
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./grafana-storage:/var/lib/grafana
-    networks:
-      - mynetwork
-
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-    networks:
-      - mynetwork
-
 
   pgadmin:
-    container_name: pgadmin4
-    image: dpage/pgadmin4 
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin-container
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_DEFAULT_EMAIL: xcushy1@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 123
     ports:
       - "5050:80"
-    networks:
-      - mynetwork
+    depends_on:
+      - postgres
 
-  nodejs-api:
-    container_name: nodejs_api
+  scraper-app:
     build:
-      context: ./nodejs-app
+      context: ./srcs/scraper-app
       dockerfile: Dockerfile
-    ports:
-      - "3030:3030"
-    networks:
-      - mynetwork
-
-networks:
-  mynetwork:
-    driver: bridge
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=bert6
+      - DATABASE_PASSWORD=123
+      - DATABASE_NAME=postgresql
