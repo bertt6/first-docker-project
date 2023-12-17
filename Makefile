@@ -5,7 +5,9 @@ VOLUMES		= $(shell docker volume ls -q)
 NETWORKS	= $(shell docker network ls -q)
 
 up				:
-				@ docker compose -f docker-compose.yml up --build
+				@ docker compose down
+				@ docker compose build
+				@ docker compose up -d
 
 down			:
 				@ docker compose -f docker-compose.yml down

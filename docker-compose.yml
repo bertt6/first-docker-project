@@ -25,6 +25,7 @@ services:
       - postgres
 
   scraper-app:
+    container_name: scraper-app-container
     build:
       context: ./srcs/scraper-app
       dockerfile: Dockerfile

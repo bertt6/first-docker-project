@@ -43,9 +43,16 @@ engine = create_engine(f'postgresql://{db_params["user"]}:{db_params["password"]
 
 # Prepare data for insertion
 data = {
-    "model": [product_name] * min_length,
-    "price": product_prices
+    "model": [product_name],
+    "price": product_prices,
+    "updated_at": [datetime.now()]  # Add the current timestamp
 }
+
 df = pd.DataFrame(data)
 
-# Insert data 
+# Insert data into PostgreSQL
+df.to_sql('iphone_prices', engine, if_exists='append', index=False, dtype={"model": String, "price": Numeric})
+
+# Close the database connection
+conn.close()
+print("Script completed successfully!")
